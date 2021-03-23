@@ -1,15 +1,18 @@
-FROM centos:7
-MAINTAINER jack
+FROM golang:1.14-alpine
 
-RUN yum install -y wget
+LABEL maintainer="Bo-Yi Wu <appleboy.tw@gmail.com>"
 
-RUN cd /
+RUN apk add bash ca-certificates git gcc g++ libc-dev
+WORKDIR /app
+# Force the go compiler to use modules
+ENV GO111MODULE=on
+# We want to populate the module cache based on the go.{mod,sum} files.
+COPY go.mod .
+COPY go.sum .
+COPY main.go .
 
-ADD jdk-8u152-linux-x64.tar.gz /
+ENV GOOS=linux
+ENV GOARCH=amd64
+RUN go build -o /app -tags netgo -ldflags '-w -extldflags "-static"' .
 
-RUN wget http://apache.stu.edu.tw/tomcat/tomcat-7/v7.0.82/bin/apache-tomcat-7.0.82.tar.gz
-RUN tar zxvf apache-tomcat-7.0.82.tar.gz
-
-ENV JAVA_HOME=/jdk1.8.0_152
-ENV PATH=$PATH:/jdk1.8.0_152/bin
-CMD ["/apache-tomcat-7.0.82/bin/catalina.sh", "run"]
+CMD ["/app"]
