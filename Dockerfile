@@ -1,3 +1,10 @@
-FROM ubuntu:18.04
-Run apt update && apt install nginx -y
-CMD service nginx start && /bin/bash
+From centos
+MAINTAINER Alfred
+
+RUN yum --assumeyes update && \
+yum --assumeyes install \
+nmap iproute && \
+bash && \
+yum clean all
+
+CMD ["/usr/bin/nmap", "-sn", "192.168.72.0/24"]
